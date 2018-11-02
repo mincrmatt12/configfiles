@@ -61,10 +61,20 @@ Do note that configfiles paths operate relative to the current user folder by de
 To use a custom python script as an update method, use `add`.
 
 ```
-$ configfiles add my_updater.py
+$ configfiles add my_updater.py modifies_file.rc
 ```
 
 Scripts are ran in the home directory, with full access guaranteed to the configfiles public API.
+
+To revert a change made by `sync`, use `rollback`.
+
+```
+$ configfiles rollback <number of changes>
+
+or (with caution)
+
+$ configfiles rollback --remote <number of changes>
+```
 
 Before using any of the above, a configfiles repo must either be `import`-ed or `init`-ed.
 
