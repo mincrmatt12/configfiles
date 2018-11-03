@@ -33,7 +33,7 @@ The repository's index contains a few fields:
 so:
 
 - name
-- files: list of files modified by the script
+- files: list of files modified by the script (filenames)
 - next: next script in chain
 """
 
