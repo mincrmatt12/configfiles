@@ -76,6 +76,12 @@ or (with caution)
 $ configfiles rollback --remote <number of changes>
 ```
 
+---
+Do note that rollback only cares about files, and there is currently no way to create transactional scripts (i.e. a custom rollback script)
+The main purpose of the scripting functionality is to customize files for machine-specific things, which is why it is designed this way.
+
+---
+
 Before using any of the above, a configfiles repo must either be `import`-ed or `init`-ed.
 
 `import` runs `init` followed by `update` on all of the passed filenames, whereas `init` simply creates a new repo with no additional scripts.
