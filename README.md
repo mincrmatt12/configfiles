@@ -1,5 +1,7 @@
 # configfiles
 
+[![PyPI version](https://badge.fury.io/py/configfiles.svg)](https://badge.fury.io/py/configfiles)
+
 A system to synchronize configuration files across multiple machines, the smart way.
 
 ## Installation
