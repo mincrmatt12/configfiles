@@ -28,10 +28,11 @@ def cli(passw, user, interactive, local):
 @cli.command()
 @click.argument('remote', required=False, default=None)
 @click.option('--ff/--no-ff', default=True, help="allow fastforwarding")
-def sync(remote, ff):
+@click.option('-c', '--count', required=False, default=-1, type=int, help="amount of times to sync, -1 to latest")
+def sync(remote, ff, count):
     interpret_authentication_params(remote, username, password, no_interactive)
     db = DotConfigFiles(load_file=os.path.join(local_dir, ".configfiles"), remote=remote)
-    db.sync(fastforward=ff, remote=remote)
+    db.sync(fastforward=ff, remote=remote, maxiter=count)
     db.close()
 
 @cli.command()

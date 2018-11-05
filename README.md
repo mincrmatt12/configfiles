@@ -99,3 +99,15 @@ TODO, refer to code comments for more information
 ## Server requirements
 
 A server hosting a configfiles repo must support sftp, and that is it. There is no "configfiles server", the entire system's code is client-only
+
+## Changelog
+
+0.3.0:
+- added ability to sync specific number of times
+- bugfixes
+
+0.2.1:
+- bugfix release
+
+0.2.0:
+- initial release

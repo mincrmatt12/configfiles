@@ -130,7 +130,7 @@ class DotConfigFiles:
 
         click.echo("rolled back to " + previous_script)
 
-    def sync(self, fastforward=True, remote=None):
+    def sync(self, fastforward=True, remote=None, maxiter=-1):
         """
         Syncs the repo
         """
@@ -161,18 +161,31 @@ class DotConfigFiles:
         # Sync the repo
         self.repo.update()
 
+        # Now, get the target
+        if maxiter == -1:
+            target = self.repo.index["end"]
+        else:
+            target = self.get_at()
+            if target == self.repo.index["end"]:
+                return
+            for i in self.repo.iterate_from(self.repo.get_script(target)["next"]):
+                target = i
+                maxiter -= 1
+                if maxiter <= 0:
+                    break
+
         # First, check if we can fastforward.
         if fastforward:
-            current_script = self.repo.get_script(self.repo.index["end"])
+            current_script = self.repo.get_script(target)
             if all([
-                (x in self.index["files"] and self.repo.index["end"] in self.index["files"][x]["chain"]) for x in current_script["files"] 
+                (x in self.index["files"] and target in self.index["files"][x]["chain"]) for x in current_script["files"] 
             ]):
-                click.echo("fastforwarding to " + self.repo.index["end"])
+                click.echo("fastforwarding to " + target)
 
                 for x in current_script["files"]:
-                    self.filemon.restore_version(x, self.repo.index["end"])
+                    self.filemon.restore_version(x, target)
 
-                self.index["at"] = self.repo.index["end"]
+                self.index["at"] = target
                 self.write()
 
                 return
@@ -181,7 +194,7 @@ class DotConfigFiles:
         script_path = os.path.abspath(script_path)
 
         # Main loop; while not fully synced (not fastforward)
-        while self.get_at() != self.repo.index["end"]:
+        while self.get_at() != target:
             if self.get_at() != "":
                 next_script = self.repo.get_script(self.get_at())["next"]
                 so = self.repo.get_script(next_script)
@@ -223,15 +236,23 @@ class DotConfigFiles:
 
     def append(self, script_text, name, files, runnow=False):
         script_obj = {
-                "name": name,
-                "files": files,
-                "next": ""
+            "name": name,
+            "files": files,
+            "next": ""
         }
 
         self.repo.update()
         self.repo.append_script(script_obj, script_text)
+        self.index["at"] = self.repo.index["end"]
 
         if runnow:
             self.sync()
+        else:
+            for x in script_obj["files"]:
+                if x not in self.index["files"]:
+                    # record original
+                    self.filemon.record_original(x, self.repo.index["end"])
+            for x in script_obj["files"]:
+                self.filemon.record_file(x)
 
 from .filemon import FileMon

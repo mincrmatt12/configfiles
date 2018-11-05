@@ -59,7 +59,7 @@ class FileMon:
         """
         Record the original version of fname.
         """
-        hashname = get_file_hash(self.db.current_remote, fname, addedin)
+        hashname = get_file_hash(self.db.current_remote, fname, addedin + "orig")
         if fname in self.db.index["files"]:
             chain = self.db.index["files"][fname]["chain"]
         else:

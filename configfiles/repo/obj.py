@@ -189,8 +189,10 @@ class FollowChainIterator:
     def __next__(self):
         if not self.pos:
             raise StopIteration
+        n = self.pos
         result = self.repo.get_script(self.pos)
         self.pos = result["next"]
+        return n
 
     def __iter__(self):
         return self
