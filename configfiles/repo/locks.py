@@ -74,7 +74,7 @@ class RepoWriteLock:
             self.client.mkdir("locks/write_lock")
 
     def _unlock(self):
-        self.client.rmdir("locks/read_lock_")
+        self.client.rmdir("locks/write_lock")
 
     def __exit__(self, *args):
         self._unlock()

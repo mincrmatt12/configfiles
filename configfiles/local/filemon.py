@@ -47,7 +47,7 @@ class FileMon:
         """
         hashname = get_file_hash(self.db.current_remote, fname, self.db.get_at())
         if os.path.exists(os.path.join(os.path.dirname(self.db.load_file), fname)):
-            with self.open(hashname, "wb") as sink, self.open_local(filename, "rb") as source:
+            with self.open(hashname, "wb") as sink, self.open_local(fname, "rb") as source:
                 shutil.copyfileobj(source, sink)
             self.db.index["files"][fname]["chain"][self.db.get_at()] = hashname
         else:
@@ -60,18 +60,22 @@ class FileMon:
         Record the original version of fname.
         """
         hashname = get_file_hash(self.db.current_remote, fname, addedin)
+        if fname in self.db.index["files"]:
+            chain = self.db.index["files"][fname]["chain"]
+        else:
+            chain = {}
         if os.path.exists(os.path.join(os.path.dirname(self.db.load_file), fname)):
-            with self.open(hashname, "wb") as sink, self.open_local(filename, "rb") as source:
+            with self.open(hashname, "wb") as sink, self.open_local(fname, "rb") as source:
                 shutil.copyfileobj(source, sink)
         
             self.db.index["files"][fname] = {
-                    "chain": {},
+                    "chain": chain,
                     "original": hashname,
                     "newin": addedin
             }
         else:
             self.db.index["files"][fname] = {
-                    "chain": {},
+                    "chain": chain,
                     "original": "",
                     "newin": addedin
             }
@@ -92,9 +96,9 @@ class FileMon:
             hashname = self.db.index["files"][fname]["chain"][version]
 
         if hashname is "":
-            os.remove(os.path.join(self.db.load_file, fname))
+            os.remove(os.path.join(os.path.dirname(self.db.load_file), fname))
         else:
-            with self.open(hashname, "wb") as source, self.open_local(filename, "rb") as sink:
+            with self.open(hashname, "rb") as source, self.open_local(fname, "wb") as sink:
                 shutil.copyfileobj(source, sink)
         
 from .db import DotConfigFiles

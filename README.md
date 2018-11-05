@@ -82,18 +82,14 @@ The main purpose of the scripting functionality is to customize files for machin
 
 ---
 
-Before using any of the above, a configfiles repo must either be `import`-ed or `init`-ed.
+Before using any of the above, a configfiles repo must be `init`-ed.
 
-`import` runs `init` followed by `update` on all of the passed filenames, whereas `init` simply creates a new repo with no additional scripts.
+`init` creates a new repo with no additional scripts.
 
 ```
 $ configfiles init config.someserver.url:repo/path
-$ configfiles update .zshrc
-$ ...
-
-or
-
-$ configfiles import .zshrc .vimrc config.someserver.url:repo/path
+$ configfiles sync config.someserver.url:repo/path
+$ configfiles update .zshrc <etc>
 ```
 
 ## Further documentation

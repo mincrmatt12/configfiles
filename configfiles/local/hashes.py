@@ -10,8 +10,8 @@ def get_remote_hash(remote):
     _, server, path = interpret_urlish(remote)
     path = path.rstrip("/").rstrip()
     server = server.rstrip()
-    m.update(server)
-    m.update(path)
+    m.update(server.encode("utf-8"))
+    m.update(path.encode("utf-8"))
     return m.hexdigest()
 
 def get_file_hash(remotehash, filename, scripthash):
@@ -24,7 +24,7 @@ def get_file_hash(remotehash, filename, scripthash):
     """
 
     m = sha512()
-    m.update(remotehash)
-    m.update(filename)
-    m.update(scripthash)
+    m.update(remotehash.encode("utf-8"))
+    m.update(filename.encode("utf-8"))
+    m.update(scripthash.encode("utf-8"))
     return m.hexdigest()

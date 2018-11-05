@@ -103,9 +103,10 @@ def authenticate_transport(transport):
         try:
             transport.auth_interactive(guessed_username, interactive_handler)
         except BadAuthenticationType:
-            guessed_password = getpass.getpass("Password: ")
+            guessed_password = getpass.getpass("Password for remote: ")
             transport.auth_password(guessed_username, guessed_password)
             use_password = True
+            use_public_key = False
     
     if transport.is_authenticated():
         return

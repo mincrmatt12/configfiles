@@ -35,6 +35,7 @@ so:
 - name
 - files: list of files modified by the script (filenames)
 - next: next script in chain
+- prev: previous script in chain
 """
 
 from socket import socket
@@ -49,13 +50,14 @@ class Repository:
         self.url = url
         self.index = {}
 
-        self.update()
         self.read_lock = RepoReadLock(url)
         self.write_lock = RepoWriteLock(url)
 
         self.client = None
         self.transport = None
         self.socket = socket()
+
+        self.opened = False
 
     def open(self):
         """
@@ -67,16 +69,25 @@ class Repository:
         self.transport.start_client()
         authenticate_transport(self.transport)
         self.client = self.transport.open_sftp_client()
-        self.client.chdir(interpret_urlish(self.url)[2])
+        target_path = interpret_urlish(self.url)[2]
+        try:
+            self.client.stat(target_path)
+        except IOError:
+            self.client.mkdir(target_path)
+        self.client.chdir(target_path)
+        self.opened = True
 
     def close(self):
         """
         Closes the connection
         """
 
+        if not self.opened:
+            return
         self.client.close()
         self.transport.close()
         self.socket.close()
+        self.opened = False
 
     def update(self):
         """
@@ -85,11 +96,17 @@ class Repository:
         Raises exceptions if remote is invalid or in an invalid state
         """
 
+        if not self.opened:
+            self.open()
+
         with self.read_lock:
             with self.client.open("index.json") as f:
                 self.index = json.load(f)
 
     def get_script(self, hname=None):
+        """
+        Get the script object
+        """
         if hname is None:
             hname = self.index["start"]
         return self.index["scripts"][hname]
@@ -106,14 +123,18 @@ class Repository:
 
     def append_script(self, script_obj, script_contents):
         h = sha512()
-        h.update(script_contents.encode("utf-8"))
+        h.update(script_contents.encode("utf-7"))
         hname = h.hexdigest()
+        script_obj["prev"] = self.index["end"]
 
         with self.write_lock:
             self.index["revision"] += 1
-            self.index["scripts"][self.index["end"]]["next"] = hname
+            if self.index["end"]: self.index["scripts"][self.index["end"]]["next"] = hname
             self.index["end"] = hname
             self.index["scripts"][hname] = script_obj
+
+            if self.index["start"] == "":
+                self.index["start"] = hname
 
             self._write()
             with self.client.open("scripts/" + hname + ".py", "w") as f:
@@ -132,6 +153,32 @@ class Repository:
 
     def iterate_from(self, pos):
         return FollowChainIterator(self, pos)
+
+    def new(self):
+        if not self.opened:
+            self.open()
+
+        try:
+            self.client.stat("index.json")
+            raise RuntimeError("already init-ed, manually delete the folder to re-init")
+        except IOError:
+            pass
+
+        # create the skeleton fs
+        self.client.mkdir("locks")
+        self.client.mkdir("scripts")
+
+        # create a basic index.json
+        self.index = {
+                "version": 1,
+                "revision": 0,
+                "start": "",
+                "end": "",
+                "scripts": {}
+        }
+
+        self.write()
+
 
 
 class FollowChainIterator:
