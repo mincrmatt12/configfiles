@@ -9,9 +9,10 @@ with open("requirements.txt", "r") as f:
 
 setup(
     name="configfiles",
-    version="0.2.0",
+    version="0.2.1",
     packages=find_packages(),
     install_requires=reqs,
+    python_requires=">=3.6",
 
     author="Matthew Mirvish",
     description="A tool to manage config files across machines.",
