@@ -22,8 +22,8 @@ no_interactive = None
 def cli(passw, user, interactive, local):
     global local_dir, password, username, no_interactive
     password, username, no_interactive, local_dir = passw, user, not interactive, local
-    if local is None:
-        local = "~"
+    if local_dir is None:
+        local_dir = "~"
 
 @cli.command()
 @click.argument('remote', required=False, default=None)

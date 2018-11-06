@@ -248,6 +248,7 @@ class DotConfigFiles:
         if runnow:
             self.sync()
         else:
+            self.index["revision"] = self.repo.get_revision()
             for x in script_obj["files"]:
                 if x not in self.index["files"]:
                     # record original
