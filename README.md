@@ -105,6 +105,9 @@ A server hosting a configfiles repo must support sftp, and that is it. There is 
 
 ## Changelog
 
+0.3.1:
+- bugfixes
+
 0.3.0:
 - added ability to sync specific number of times
 - bugfixes

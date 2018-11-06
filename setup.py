@@ -9,7 +9,7 @@ with open("requirements.txt", "r") as f:
 
 setup(
     name="configfiles",
-    version="0.3.0",
+    version="0.3.1",
     packages=find_packages(),
     install_requires=reqs,
     python_requires=">=3.6",
